@@ -48,10 +48,6 @@ class LoginController extends Controller
                 return response()->json(['message' => 'Usuario deshabilitado por exceder el límite de inasistencias.']);
             }
 
-            if (!$loggedInUser->attendance) {
-                return response()->json(['message' => 'Tienes una falta acumulada.']);
-            }
-
             if (!$loggedInUser->attendance <= 4 && $loggedInUser->status) {
                 $token = $this->loginService->createTokenForUser($loggedInUser);
                 $user = User::where('username', $request['username'])->first(['id', 'name', 'surname', 'image', 'shift']);
