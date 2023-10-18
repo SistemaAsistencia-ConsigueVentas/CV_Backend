@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace App\Services;
@@ -11,9 +10,12 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class JustificationService {
+class JustificationService
+{
     protected $justificationRepository;
-    public function __construct(JustificationRepositoryInterface $justificationRepository) {
+
+    public function __construct(JustificationRepositoryInterface $justificationRepository)
+    {
         $this->justificationRepository = $justificationRepository;
     }
 
@@ -21,28 +23,35 @@ class JustificationService {
     {
         try {
             $query = Justification::with('User.position.core.department', 'actionByUser:id,name,surname');
+
             if (isset($filters['status'])) {
                 $query->where('status', $filters['status']);
             }
+
             if (isset($filters['user'])) {
                 $query->where('user_id', Auth::user()->id);
             }
+
             if (isset($filters['exclude_user'])) {
-                $query->where('user_id', '!=' , Auth::user()->id);
+                $query->where('user_id', '!=', Auth::user()->id);
             }
+
             if (isset($filters['shift'])) {
                 $query->whereHas('User.position', function ($q) use ($filters) {
                     $q->where('shift', $filters['shift']);
                 });
             }
+
             if (isset($filters['id'])) {
                 $justification = $query->find($filters['id']);
+
                 if (!$justification) {
                     throw new ModelNotFoundException('Justificación no encontrada');
                 }
-                return  $justification;
+
+                return $justification;
             }
-            // Filtrar por nombre o apellido si se proporciona
+
             if (isset($filters['name'])) {
                 $query->whereHas('User', function ($q) use ($filters) {
                     $q->where('name', 'LIKE', '%' . $filters['name'] . '%')
@@ -58,23 +67,28 @@ class JustificationService {
             $absence = Justification::where('type', '0')->count();
             $delay = Justification::where('type', '1')->count();
 
-            $justifications = collect($justifications)->map(function ($justification) {
+            $justifications = $justifications->map(function ($justification) {
                 $justification->user->image_url = $justification->user->getImageUrlAttribute();
                 return $justification;
             });
 
-            return ['Justifications' => $justifications,
+            return [
+                'Justifications' => $justifications,
                 'rechazados' => $declines,
                 'proceso' => $process,
                 'aceptados' => $accept,
                 'faltas' => $absence,
-                'delay' => $delay];
+                'delay' => $delay
+            ];
+        } catch (ModelNotFoundException $e) {
+            throw new ModelNotFoundException('Justificación no encontrada');
         } catch (\Exception $e) {
-            throw new \Exception('Error al obtener las justificaciones.', 500);
+            throw new \Exception('Error al obtener las justificaciones', 500);
         }
     }
 
-    private function uploadImage($image) {
+    private function uploadImage($image)
+    {
         try {
             // Subir imagen al servidor
             $file = $image;
@@ -88,7 +102,8 @@ class JustificationService {
         }
     }
 
-    public function createJustification(array $data) {
+    public function createJustification(array $data)
+    {
         try {
             //Por default el status == 3 (En Proceso)
             $data["status"] = 3;
@@ -103,17 +118,21 @@ class JustificationService {
         }
     }
 
-    public function acceptJustification($id) {
+    public function acceptJustification($id)
+    {
         try {
             $actionByUserId = auth()->id();
             $justification = Justification::find($id);
+
             if (!$justification) {
                 throw new ModelNotFoundException('Justificación no encontrada');
             }
+
             $date = $justification->justification_date;
             $user = $justification->user_id;
-            // Verificar si ya existe un registro de asistencia
+
             $attendance = Attendance::where('user_id', $user)->where('date', $date)->first();
+
             if ($attendance) {
                 if ($justification->type == '0') {
                     $attendance->update(['attendance' => '0', 'justification' => '1']);
@@ -126,14 +145,18 @@ class JustificationService {
                     'date' => $date,
                     'justification' => '1',
                 ];
+
                 if ($justification->type == '0') {
                     $attendanceData['attendance'] = '0';
                 } else {
                     $attendanceData['delay'] = '1';
                 }
+
                 Attendance::create($attendanceData);
             }
+
             $justification->update(['status' => '1', 'action_by' => $actionByUserId]);
+
             return "Justificación aceptada con éxito";
         } catch (ModelNotFoundException $e) {
             throw new ModelNotFoundException('Justificación no encontrada');
@@ -142,10 +165,12 @@ class JustificationService {
         }
     }
 
-    public function declineJustification(Request $request, $id) {
+    public function declineJustification(Request $request, $id)
+    {
         try {
             $actionByUserId = auth()->id();
             $justification = Justification::find($id);
+
             if ($justification) {
                 if ($justification->status == 2 || $justification->status == 1) {
                     return 'Esta justificación ya ha sido declinada o aceptada';
@@ -155,6 +180,7 @@ class JustificationService {
                         'reason_decline' => $request->reason_decline,
                         'action_by' => $actionByUserId
                     ]);
+
                     return "La Justificación ha sido rechazada";
                 }
             } else {
@@ -166,8 +192,9 @@ class JustificationService {
             throw new \Exception('Error al declinar la justificación.', 500);
         }
     }
-    
-    public function deleteJustification(int $id) {
+
+    public function deleteJustification(int $id)
+    {
         try {
             return $this->justificationRepository->delete($id);
         } catch (\Exception $e) {
