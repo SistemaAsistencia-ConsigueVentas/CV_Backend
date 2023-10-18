@@ -52,11 +52,11 @@ class LoginController extends Controller
                 return response()->json(['message' => 'Tienes una falta acumulada.']);
             }
 
-            $token = $this->loginService->createTokenForUser($loggedInUser);
-            $user = User::where('username', $request['username'])->first(['id', 'name', 'surname', 'image', 'shift']);
-            $role = $loggedInUser->roles->first();
-
-
+            if (!$loggedInUser->attendance <= 4 && $loggedInUser->status) {
+                $token = $this->loginService->createTokenForUser($loggedInUser);
+                $user = User::where('username', $request['username'])->first(['id', 'name', 'surname', 'image', 'shift']);
+                $role = $loggedInUser->roles->first();
+            }
 
             return response()->json([
                 'access_token' => $token,
