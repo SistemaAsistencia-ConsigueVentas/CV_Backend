@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Repositories\NotificationRepositories\EloquentNotificationRepository;
+use App\Repositories\NotificationRepositories\NotificationRepositoryInterface;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
 
@@ -14,7 +16,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->app->bind(NotificationRepositoryInterface::class, EloquentNotificationRepository::class);
     }
 
     /**
