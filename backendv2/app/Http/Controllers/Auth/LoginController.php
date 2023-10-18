@@ -42,8 +42,8 @@ class LoginController extends Controller
             }
 
             // Realiza acciones relacionadas con notificaciones de ausencias y tardanzas del usuario.
-            $this->notificationService->sactionUserAbsences($loggedInUser->id);
-            $this->notificationService->sactionUserDelays($loggedInUser->id);
+            $this->notificationService->sanctionUserAbsences($loggedInUser->id);
+            $this->notificationService->sanctionUserDelays($loggedInUser->id);
 
             // Verifica el estado del usuario (habilitado o deshabilitado).
             if (!$loggedInUser->status) {

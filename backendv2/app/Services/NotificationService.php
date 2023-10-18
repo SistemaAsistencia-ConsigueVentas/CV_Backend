@@ -18,7 +18,7 @@ class NotificationService
     }
 
     // Acción para sancionar al usuario por un exceso de ausencias
-    public function sactionUserAbsences($userId): void
+    public function sanctionUserAbsences($userId): void
     {
         // Obtener la cantidad de ausencias del usuario
         $absencesCount = $this->notificationRepository->countUserAbsences($userId);
@@ -41,19 +41,18 @@ class NotificationService
     }
 
     // Acción para sancionar al usuario por un exceso de tardanzas
-    public function sactionUserDelays($userId): void
+    public function sanctionUserDelays($userId): void
     {
         // Obtener la cantidad de tardanzas del usuario
         $delaysCount = $this->notificationRepository->countUserDelays($userId);
 
-        // Verificar si el usuario tiene 4 o más tardanzas
-        if($delaysCount >= 4)
+        // Verificar si el usuario tiene 13 o más tardanzas
+        if($delaysCount >= 13)
         {
             // Obtener el registro de asistencia del usuario
             $attendance = Attendance::where('user_id', $userId)->first(); 
 
             // Marcar al usuario como con tardanzas y ausente, y guardar el registro de asistencia
-            $attendance->delay = true;
             $attendance->attendance = false;
             $attendance->save();
         }
