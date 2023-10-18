@@ -52,7 +52,7 @@ class NotificationService
             // Obtener el registro de asistencia del usuario
             $attendance = Attendance::where('user_id', $userId)->first(); 
 
-            // Marcar al usuario como con tardanzas y ausente, y guardar el registro de asistencia
+            // Marcar al usuario como ausente, y guardar el registro de asistencia
             $attendance->attendance = false;
             $attendance->save();
         }
