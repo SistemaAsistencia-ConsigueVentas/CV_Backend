@@ -17,7 +17,7 @@ class NotificationService
         $this->notificationRepository = $notificationRepository;
     }
 
-    public function sactionUserAbsences($userId): void
+    public function sanctionUserAbsences($userId): void
     {
         $absencesCount = $this->notificationRepository->countUserAbsences($userId);
 
@@ -35,15 +35,14 @@ class NotificationService
         };
     }
 
-    public function sactionUserDelays($userId): void
+    public function sanctionUserDelays($userId): void
     {
         $delaysCount = $this->notificationRepository->countUserDelays($userId);
 
-        if($delaysCount >= 4)
+        if($delaysCount >= 13)
         {
             $attendance = Attendance::where('user_id', $userId)->first(); 
 
-            $attendance->delay = true;
             $attendance->attendance = false;
             $attendance->save();
         };
