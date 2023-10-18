@@ -43,6 +43,7 @@ class EloquentNotificationRepository implements NotificationRepositoryInterface
         return false;
     }
 
+    // Cuenta la cantidad de ausencias de un usuario identificado por su ID.
     public function countUserAbsences(int $userId): int
     {
         return Attendance::where('attendance', false)
@@ -52,6 +53,7 @@ class EloquentNotificationRepository implements NotificationRepositoryInterface
             ->count();
     }
 
+    // Cuenta la cantidad de tardanzas de un usuario identificado por su ID
     public function countUserDelays(int $userId): int
     {
         return Attendance::where('delay', true)

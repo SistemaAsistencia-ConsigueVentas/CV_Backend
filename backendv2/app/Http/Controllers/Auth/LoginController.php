@@ -41,28 +41,25 @@ class LoginController extends Controller
                 return response()->json(['message' => 'La cuenta del usuario está bloqueada'], 403);
             }
 
+            // Realiza acciones relacionadas con notificaciones de ausencias y tardanzas del usuario.
             $this->notificationService->sactionUserAbsences($loggedInUser->id);
             $this->notificationService->sactionUserDelays($loggedInUser->id);
 
+            // Verifica el estado del usuario (habilitado o deshabilitado).
             if (!$loggedInUser->status) {
                 return response()->json(['message' => 'Usuario deshabilitado por exceder el límite de inasistencias.']);
             }
-
-            if (!$loggedInUser->attendance) {
-                return response()->json(['message' => 'Tienes una falta acumulada.']);
-            }
-
-            if (!$loggedInUser->attendance <= 4 && $loggedInUser->status) {
-                $token = $this->loginService->createTokenForUser($loggedInUser);
-                $user = User::where('username', $request['username'])->first(['id', 'name', 'surname', 'image', 'shift']);
-                $role = $loggedInUser->roles->first();
-            }
+            
+            $token = $this->loginService->createTokenForUser($loggedInUser);
+            $user = User::where('username', $request['username'])->first(['id', 'name', 'surname', 'image', 'shift']);
+            $role = $loggedInUser->roles->first();
 
             return response()->json([
                 'access_token' => $token,
                 'user' => $user,
                 'role' => $role
             ]);
+
         } catch (ValidationException $e) {
             // Manejar excepciones de validación
             return response()->json(['message' => $e->getMessage()], 422);
