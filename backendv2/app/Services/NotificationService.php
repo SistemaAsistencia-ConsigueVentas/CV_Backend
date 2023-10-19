@@ -45,6 +45,11 @@ class NotificationService
 
             $attendance->attendance = false;
             $attendance->save();
+
+            $user = User::find($userId);
+            
+            $user->status = false;
+            $user->save();
         };
     }
 }
