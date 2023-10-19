@@ -41,8 +41,8 @@ class LoginController extends Controller
                 return response()->json(['message' => 'La cuenta del usuario está bloqueada'], 403);
             }
 
-            $this->notificationService->sactionUserAbsences($loggedInUser->id);
-            $this->notificationService->sactionUserDelays($loggedInUser->id);
+            $this->notificationService->sanctionUserAbsences($loggedInUser->id);
+            $this->notificationService->sanctionUserDelays($loggedInUser->id);
 
             if (!$loggedInUser->status) {
                 return response()->json(['message' => 'Usuario deshabilitado por exceder el límite de inasistencias.']);
