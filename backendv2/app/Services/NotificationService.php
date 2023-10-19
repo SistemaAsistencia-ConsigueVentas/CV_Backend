@@ -17,44 +17,25 @@ class NotificationService
         $this->notificationRepository = $notificationRepository;
     }
 
-    // Acción para sancionar al usuario por un exceso de ausencias
-    public function sanctionUserAbsences($userId): void
+    // lógica para verificar si el usuario debe ser bloqueado.
+    public function isUserBlockedForAbsences($userId): bool
     {
-        // Obtener la cantidad de ausencias del usuario
+        
+        // Obtener la cantidad de ausencias y tardanzas del usuario
         $absencesCount = $this->notificationRepository->countUserAbsences($userId);
+        $delaysCount = $this->notificationRepository->countUserDelays($userId);
 
-        // Verificar si el usuario tiene 4 o más ausencias
-        if($absencesCount >= 4)
-        {
-            // Obtener el registro de asistencia del usuario
-            $attendance = Attendance::where('user_id', $userId)->first(); 
-
-            // Marcar al usuario como ausente y guardar el registro de asistencia
-            $attendance->attendance = false;
-            $attendance->save();
+        // Verificar si el usuario tiene 4 o mas ausencias y 13 o más tardanzas
+        if ($absencesCount > 3 || $delaysCount >= 13) {
 
             // Encontrar el usuario y marcarlo como inactivo
             $user = User::find($userId);
             $user->status = false;
             $user->save();
+
+            return true;
         }
-    }
 
-    // Acción para sancionar al usuario por un exceso de tardanzas
-    public function sanctionUserDelays($userId): void
-    {
-        // Obtener la cantidad de tardanzas del usuario
-        $delaysCount = $this->notificationRepository->countUserDelays($userId);
-
-        // Verificar si el usuario tiene 13 o más tardanzas
-        if($delaysCount >= 13)
-        {
-            // Obtener el registro de asistencia del usuario
-            $attendance = Attendance::where('user_id', $userId)->first(); 
-
-            // Marcar al usuario como ausente, y guardar el registro de asistencia
-            $attendance->attendance = false;
-            $attendance->save();
-        }
+        return false;
     }
 }
