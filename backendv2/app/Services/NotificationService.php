@@ -17,39 +17,25 @@ class NotificationService
         $this->notificationRepository = $notificationRepository;
     }
 
-    public function sanctionUserAbsences($userId): void
+    // lógica para verificar si el usuario debe ser bloqueado.
+    public function isUserBlockedForAbsences($userId): bool
     {
+        
+        // Obtener la cantidad de ausencias y tardanzas del usuario
         $absencesCount = $this->notificationRepository->countUserAbsences($userId);
-
-        if($absencesCount >= 4)
-        {
-            $attendance = Attendance::where('user_id', $userId)->first(); 
-
-            $attendance->attendance = false;
-            $attendance->save();
-
-            $user = User::find($userId);
-
-            $user->status = false;
-            $user->save();
-        };
-    }
-
-    public function sanctionUserDelays($userId): void
-    {
         $delaysCount = $this->notificationRepository->countUserDelays($userId);
 
-        if($delaysCount >= 13)
-        {
-            $attendance = Attendance::where('user_id', $userId)->first(); 
+        // Verificar si el usuario tiene 4 o mas ausencias y 13 o más tardanzas
+        if ($absencesCount > 3 || $delaysCount >= 13) {
 
-            $attendance->attendance = false;
-            $attendance->save();
-
+            // Encontrar el usuario y marcarlo como inactivo
             $user = User::find($userId);
-            
             $user->status = false;
             $user->save();
-        };
+
+            return true;
+        }
+
+        return false;
     }
 }
