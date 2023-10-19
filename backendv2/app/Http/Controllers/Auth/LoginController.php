@@ -17,7 +17,7 @@ class LoginController extends Controller
     protected $loginService;
     protected $notificationService;
 
-    public function __construct(LoginService $loginService, NotificationService $notificationService)
+    public function construct(LoginService $loginService, NotificationService $notificationService)
     {
         $this->loginService = $loginService;
         $this->notificationService = $notificationService;
@@ -28,7 +28,7 @@ class LoginController extends Controller
         try {
             $credentials = $request->only(['username', 'password']);
             if (!$this->loginService->attempLogin($credentials)) {
-                return response()->json(['message' => __('auth.unauthorized')], 401);
+                return response()->json(['message' => ('auth.unauthorized')], 401);
             }
 
             $loggedInUser = auth()->user();
@@ -37,22 +37,18 @@ class LoginController extends Controller
                 // Manejar el caso cuando $loggedInUser no es una instancia de User
                 return response()->json(['message' => 'El usuario autenticado no es válido'], 403);
             }
+
             if ($this->loginService->isUserBlocked($loggedInUser)) {
                 return response()->json(['message' => 'La cuenta del usuario está bloqueada'], 403);
             }
 
-            $this->notificationService->sanctionUserAbsences($loggedInUser->id);
-            $this->notificationService->sanctionUserDelays($loggedInUser->id);
-
-            if (!$loggedInUser->status) {
+            if($this->notificationService->isUserBlockedForAbsences($loggedInUser->id)){
                 return response()->json(['message' => 'Usuario deshabilitado por exceder el límite de inasistencias.']);
             }
 
-            if (!$loggedInUser->attendance <= 4 && $loggedInUser->status) {
-                $token = $this->loginService->createTokenForUser($loggedInUser);
-                $user = User::where('username', $request['username'])->first(['id', 'name', 'surname', 'image', 'shift']);
-                $role = $loggedInUser->roles->first();
-            }
+            $token = $this->loginService->createTokenForUser($loggedInUser);
+            $user = User::where('username', $request['username'])->first(['id', 'name', 'surname', 'image', 'shift']);
+            $role = $loggedInUser->roles->first();
 
             return response()->json([
                 'access_token' => $token,
@@ -64,10 +60,10 @@ class LoginController extends Controller
             return response()->json(['message' => $e->getMessage()], 422);
         } catch (ModelNotFoundException $e) {
             // Manejar excepciones de modelo no encontrado
-            return response()->json(['message' => __('auth.user_not_found')], 404);
+            return response()->json(['message' => ('auth.user_not_found')], 404);
         } // catch (\Exception $e) {
         //         // Manejar otras excepciones no esperadas
-        //         return response()->json(['message' => __('auth.generic_error')], 500);
+        //         return response()->json(['message' => ('auth.generic_error')], 500);
         //     }
     }
 }
