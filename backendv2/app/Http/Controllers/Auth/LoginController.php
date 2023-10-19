@@ -37,19 +37,15 @@ class LoginController extends Controller
                 // Manejar el caso cuando $loggedInUser no es una instancia de User
                 return response()->json(['message' => 'El usuario autenticado no es válido'], 403);
             }
+
             if ($this->loginService->isUserBlocked($loggedInUser)) {
                 return response()->json(['message' => 'La cuenta del usuario está bloqueada'], 403);
             }
 
-            // Realiza acciones relacionadas con notificaciones de ausencias y tardanzas del usuario.
-            $this->notificationService->sanctionUserAbsences($loggedInUser->id);
-            $this->notificationService->sanctionUserDelays($loggedInUser->id);
-
-            // Verifica el estado del usuario (habilitado o deshabilitado).
-            if (!$loggedInUser->status) {
+            if($this->notificationService->isUserBlockedForAbsences($loggedInUser->id)){
                 return response()->json(['message' => 'Usuario deshabilitado por exceder el límite de inasistencias.']);
             }
-            
+
             $token = $this->loginService->createTokenForUser($loggedInUser);
             $user = User::where('username', $request['username'])->first(['id', 'name', 'surname', 'image', 'shift']);
             $role = $loggedInUser->roles->first();
@@ -59,7 +55,6 @@ class LoginController extends Controller
                 'user' => $user,
                 'role' => $role
             ]);
-
         } catch (ValidationException $e) {
             // Manejar excepciones de validación
             return response()->json(['message' => $e->getMessage()], 422);
