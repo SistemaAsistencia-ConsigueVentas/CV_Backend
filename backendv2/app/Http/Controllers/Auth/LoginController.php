@@ -17,7 +17,7 @@ class LoginController extends Controller
     protected $loginService;
     protected $notificationService;
 
-    public function construct(LoginService $loginService, NotificationService $notificationService)
+    public function __construct(LoginService $loginService, NotificationService $notificationService)
     {
         $this->loginService = $loginService;
         $this->notificationService = $notificationService;
@@ -42,10 +42,8 @@ class LoginController extends Controller
                 return response()->json(['message' => 'La cuenta del usuario está bloqueada'], 403);
             }
 
-            if($this->notificationService->isUserBlockedForAbsences($loggedInUser->id)){
-                return response()->json(['message' => 'Usuario deshabilitado por exceder el límite de inasistencias.']);
-            }
-
+            $this->notificationService->isUserBlockedForAbsences($loggedInUser->id);
+                
             $token = $this->loginService->createTokenForUser($loggedInUser);
             $user = User::where('username', $request['username'])->first(['id', 'name', 'surname', 'image', 'shift']);
             $role = $loggedInUser->roles->first();
