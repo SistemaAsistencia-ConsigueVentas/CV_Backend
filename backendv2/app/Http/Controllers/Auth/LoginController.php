@@ -42,7 +42,10 @@ class LoginController extends Controller
                 return response()->json(['message' => 'La cuenta del usuario está bloqueada'], 403);
             }
 
-            $this->notificationService->isUserBlockedForAbsences($loggedInUser->id);
+            if ($this->notificationService->isUserBlockedForAbsences($loggedInUser->id)) {
+                return response()->json(['message' => 'Recuerda que si acumulas 3 faltas serás deshabilitado
+                ']);
+            }
 
             $token = $this->loginService->createTokenForUser($loggedInUser);
             $user = User::where('username', $request['username'])->first(['id', 'name', 'surname', 'image', 'shift']);
