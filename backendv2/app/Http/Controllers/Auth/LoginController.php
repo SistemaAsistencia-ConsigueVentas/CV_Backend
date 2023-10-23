@@ -27,6 +27,7 @@ class LoginController extends Controller
     {
         try {
             $credentials = $request->only(['username', 'password']);
+
             if (!$this->loginService->attempLogin($credentials)) {
                 return response()->json(['message' => __('auth.unauthorized')], 401);
             }
@@ -37,6 +38,7 @@ class LoginController extends Controller
                 // Manejar el caso cuando $loggedInUser no es una instancia de User
                 return response()->json(['message' => 'El usuario autenticado no es válido'], 403);
             }
+
 
             if ($this->loginService->isUserBlocked($loggedInUser)) {
                 return response()->json(['message' => 'La cuenta del usuario está bloqueada'], 403);
@@ -56,6 +58,7 @@ class LoginController extends Controller
                 'user' => $user,
                 'role' => $role
             ]);
+
         } catch (ValidationException $e) {
             // Manejar excepciones de validación
             return response()->json(['message' => $e->getMessage()], 422);
@@ -64,7 +67,7 @@ class LoginController extends Controller
             return response()->json(['message' => __('auth.user_not_found')], 404);
         } // catch (\Exception $e) {
         //         // Manejar otras excepciones no esperadas
-        //         return response()->json(['message' => __('auth.generic_error')], 500);
+        //         return response()->json(['message' => ('auth.generic_error')], 500);
         //     }
     }
 }
