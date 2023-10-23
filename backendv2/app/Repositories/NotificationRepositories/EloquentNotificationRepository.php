@@ -47,6 +47,7 @@ class EloquentNotificationRepository implements NotificationRepositoryInterface
     public function countUserAbsences(int $userId): int
     {
         return Attendance::where('attendance', false)
+            ->where('justification', false)
             ->whereHas('user', function ($query) use ($userId) {
                 $query->where('id', $userId);
             })
@@ -57,6 +58,7 @@ class EloquentNotificationRepository implements NotificationRepositoryInterface
     public function countUserDelays(int $userId): int
     {
         return Attendance::where('delay', true)
+            ->where('justification', false) 
             ->whereHas('user', function ($query) use ($userId) {
                 $query->where('id', $userId);
             })
