@@ -58,7 +58,7 @@ Route::post('schedule/check', [App\Http\Controllers\ScheduleController::class, '
 Route::post('schedule/create', [App\Http\Controllers\ScheduleController::class, 'createSchedule']);
 
 // ---------------- REPORTS URL's --------------- //
-Route::get('reports', [App\Http\Controllers\ReportsController::class, 'getReports']);
+Route::get('reports/list', [App\Http\Controllers\ReportsController::class, 'getReports']);
 
 // ---------------- NOTIFICATIONS URL's --------------- //
 Route::get('notification/list', [App\Http\Controllers\NotificationController::class, 'getNotifications']);

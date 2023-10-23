@@ -17,7 +17,7 @@ class LoginController extends Controller
     protected $loginService;
     protected $notificationService;
 
-    public function construct(LoginService $loginService, NotificationService $notificationService)
+    public function __construct(LoginService $loginService, NotificationService $notificationService)
     {
         $this->loginService = $loginService;
         $this->notificationService = $notificationService;
@@ -28,7 +28,7 @@ class LoginController extends Controller
         try {
             $credentials = $request->only(['username', 'password']);
             if (!$this->loginService->attempLogin($credentials)) {
-                return response()->json(['message' => ('auth.unauthorized')], 401);
+                return response()->json(['message' => __('auth.unauthorized')], 401);
             }
 
             $loggedInUser = auth()->user();
@@ -60,7 +60,7 @@ class LoginController extends Controller
             return response()->json(['message' => $e->getMessage()], 422);
         } catch (ModelNotFoundException $e) {
             // Manejar excepciones de modelo no encontrado
-            return response()->json(['message' => ('auth.user_not_found')], 404);
+            return response()->json(['message' => __('auth.user_not_found')], 404);
         } // catch (\Exception $e) {
         //         // Manejar otras excepciones no esperadas
         //         return response()->json(['message' => ('auth.generic_error')], 500);
