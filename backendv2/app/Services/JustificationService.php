@@ -61,14 +61,14 @@ class JustificationService
 
             $query->orderBy('created_at', 'desc');
 
-            $justifications = $query->paginate(6);
-
-            $declines = $query->where('status', '2')->where('user_id',)->count();
+            $declines = $query->where('status', '2')->count();
             $process = $query->where('status', '3')->count();
             $accept = $query->where('status', '1')->count();
             $absence = $query->where('type', '0')->count();
             $delay = $query->where('type', '1')->count();
             $total = $query->count();
+
+            $justifications = $query->paginate(6);
 
             $justifications = $justifications->map(function ($justification) {
                 $justification->user->image_url = $justification->user->getImageUrlAttribute();
