@@ -27,6 +27,7 @@ class LoginController extends Controller
     {
         try {
             $credentials = $request->only(['username', 'password']);
+
             if (!$this->loginService->attempLogin($credentials)) {
                 return response()->json(['message' => __('auth.unauthorized')], 401);
             }
@@ -55,6 +56,7 @@ class LoginController extends Controller
                 'user' => $user,
                 'role' => $role
             ]);
+
         } catch (ValidationException $e) {
             // Manejar excepciones de validación
             return response()->json(['message' => $e->getMessage()], 422);
