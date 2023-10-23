@@ -63,12 +63,12 @@ class JustificationService
 
             $justifications = $query->paginate(6);
 
-            $declines = Justification::where('status', '2')->count();
-            $process = Justification::where('status', '3')->count();
-            $accept = Justification::where('status', '1')->count();
-            $absence = Justification::where('type', '0')->count();
-            $delay = Justification::where('type', '1')->count();
-            $total = Justification::count();
+            $declines = $query->where('status', '2')->where('user_id',)->count();
+            $process = $query->where('status', '3')->count();
+            $accept = $query->where('status', '1')->count();
+            $absence = $query->where('type', '0')->count();
+            $delay = $query->where('type', '1')->count();
+            $total = $query->count();
 
             $justifications = $justifications->map(function ($justification) {
                 $justification->user->image_url = $justification->user->getImageUrlAttribute();
