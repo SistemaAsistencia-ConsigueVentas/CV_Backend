@@ -76,13 +76,15 @@ class JustificationService
             });
 
             return [
-                'Justifications' => $justifications,
-                'rechazados' => $declines,
-                'proceso' => $process,
-                'aceptados' => $accept,
-                'faltas' => $absence,
-                'delay' => $delay,
-                'total' => $total
+                'Justifications' => [
+                    'data' => $justifications,
+                    'rechazados' => $declines,
+                    'proceso' => $process,
+                    'aceptados' => $accept,
+                    'faltas' => $absence,
+                    'delay' => $delay,
+                    'total' => $total
+                ]
             ];
         } catch (ModelNotFoundException $e) {
             throw new ModelNotFoundException('Justificación no encontrada');
