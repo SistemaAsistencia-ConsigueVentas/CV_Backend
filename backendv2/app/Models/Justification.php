@@ -33,6 +33,7 @@ class Justification extends Model
     {
         return $this->belongsTo(JustificationStatuses::class, 'status', 'id');
     }
+    
     public function actionByUser(){
         return $this->belongsTo(User::class, 'action_by');
     }

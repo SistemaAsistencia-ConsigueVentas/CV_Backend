@@ -19,79 +19,43 @@ class JustificationService
         $this->justificationRepository = $justificationRepository;
     }
 
-    public function getJustifications(array $filters)
-    {
+    public function getJustifications(array $filters){
         try {
-            $query = Justification::with('User.position.core.department', 'actionByUser:id,name,surname');
-
-            if (isset($filters['status'])) {
-                $query->where('status', $filters['status']);
-            }
-
+            $query = Justification::with('user.position.core.department');
+    
             if (isset($filters['user'])) {
-                $query->where('user_id', Auth::user()->id);
+                $query->where('user_id', $filters['user']);
             }
-
+    
             if (isset($filters['exclude_user'])) {
-                $query->where('user_id', '!=', Auth::user()->id);
+                $query->where('user_id', '!=', $filters['exclude_user']);
             }
-
+    
             if (isset($filters['shift'])) {
-                $query->whereHas('User.position', function ($q) use ($filters) {
-                    $q->where('shift', $filters['shift']);
+                $query->whereHas('user', function ($userQuery) use ($filters) {
+                    $userQuery->where('shift', $filters['shift']);
                 });
             }
-
-            if (isset($filters['id'])) {
-                $justification = $query->find($filters['id']);
-
-                if (!$justification) {
-                    throw new ModelNotFoundException('Justificación no encontrada');
-                }
-
-                return $justification;
-            }
-
-            if (isset($filters['name'])) {
-                $query->whereHas('User', function ($q) use ($filters) {
-                    $q->where('name', 'LIKE', '%' . $filters['name'] . '%')
-                        ->orWhere('surname', 'LIKE', '%' . $filters['name'] . '%');
-                });
-            }
-
-            $query->orderBy('created_at', 'desc');
-
-            $declines = $query->where('status', '2')->count();
-            $process = $query->where('status', '3')->count();
-            $accept = $query->where('status', '1')->count();
-            $absence = $query->where('type', '0')->count();
-            $delay = $query->where('type', '1')->count();
+    
             $total = $query->count();
-
             $justifications = $query->paginate(6);
-
-            $justifications = $justifications->map(function ($justification) {
-                $justification->user->image_url = $justification->user->getImageUrlAttribute();
-                return $justification;
-            });
-
+    
+            // $justifications = $justifications->map(function ($justification) {
+            //     $justification->user->image_url = $justification->user->getImageUrlAttribute();
+            //     return $justification;
+            // });
+    
             return [
                 'Justifications' => [
                     'data' => $justifications,
-                    'rechazados' => $declines,
-                    'proceso' => $process,
-                    'aceptados' => $accept,
-                    'faltas' => $absence,
-                    'delay' => $delay,
                     'total' => $total
                 ]
             ];
         } catch (ModelNotFoundException $e) {
             throw new ModelNotFoundException('Justificación no encontrada');
-        } catch (\Exception $e) {
-            throw new \Exception('Error al obtener las justificaciones', 500);
         }
     }
+    
 
     private function uploadImage($image)
     {
