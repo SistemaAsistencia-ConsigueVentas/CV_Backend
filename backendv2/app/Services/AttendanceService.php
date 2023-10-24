@@ -40,6 +40,7 @@ class AttendanceService {
             }
     
             return $query->paginate(10);
+            
         } catch (\Exception $e) {
             throw new \Exception('Error al obtener las asistencias', 500);
         }
