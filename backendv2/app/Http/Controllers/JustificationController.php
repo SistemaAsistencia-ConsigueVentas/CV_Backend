@@ -38,6 +38,17 @@ class JustificationController extends Controller
         }
     }
 
+    public function getJustificationsByUserId($userId) {
+        $justification = Justification::with('User')->where('user_id', $userId)->get();
+        $justification_count = Justification::where('user_id', $userId)->count();
+
+        if (isset($filters['page'])) {
+           $justification->paginate(6);
+        }
+
+        return response()->json(['justifications' => ['data' => $justification, 'total' => $justification_count]]);
+    }
+
     public function acceptJustifications($id) {
         try {
             $justification = $this->justificationService->acceptJustification($id);
