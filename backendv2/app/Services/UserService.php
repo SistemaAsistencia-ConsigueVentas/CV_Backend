@@ -11,7 +11,7 @@ use Spatie\Permission\Models\Role;
 
 class UserService
 {
-    public function getFilteredUsers(array $filters)
+    public function getFilteredUsers(array $filters): LengthAwarePaginator
     {
         try {
             $query = User::query()->where('status', true)->with('position.core.department', 'roles');
@@ -36,7 +36,10 @@ class UserService
                 $query->whereHas('position.core', fn ($q) => $q->where('id', $filters['core']));
             }
 
-            $users = $query->get();
+            $users = $query->paginate(10);
+            foreach ($users as $user) {
+                $user->image_url = $user->getImageUrlAttribute();
+            }
             return $users;
         } catch (\Exception $e) {
             throw new \Exception('Error al obtener los usuarios filtrados.', 500);
