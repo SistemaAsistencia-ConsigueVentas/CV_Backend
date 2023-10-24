@@ -15,7 +15,7 @@ class ReportsController extends Controller
         $reportes_justificaciones = DB::select('select * from vista_reportes_justifications');
 
         $total_users = User::count();
-        $usuarios_activos = User::where('status', true)->count();
+        $usuarios_activos = User::where('status', true)->count();   
         $ingresos_mes = DB::select("select count(*) from users where DATE_PART('month', created_at) = DATE_PART('month', CURRENT_DATE) AND DATE_PART('year', created_at) = DATE_PART('year', CURRENT_DATE);");
 
         return response()->json(['reportes_asistencias' => $reportes_asistencia, 
