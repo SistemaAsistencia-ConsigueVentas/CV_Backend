@@ -28,6 +28,9 @@ Route::delete('position/delete/{id}', [App\Http\Controllers\PositionController::
 
 // ---------------- JUSTIFICATIONS URL's ---------------- //
 Route::get('justification/list', [App\Http\Controllers\JustificationController::class, 'getJustifications']);
+
+Route::get('justification/list/{id}', [App\Http\Controllers\JustificationController::class, 'getJustificationsByUserId']);
+
 Route::post('justification/create', [App\Http\Controllers\JustificationController::class, 'createJustifications']);
 Route::post('justification/accept/{id}', [App\Http\Controllers\JustificationController::class, 'acceptJustifications']);
 Route::post('justification/decline/{id}', [App\Http\Controllers\JustificationController::class, 'declineJustifications']);

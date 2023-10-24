@@ -14,6 +14,7 @@ use App\Models\Justification;
 
 class AttendanceService {
     protected $attendanceRepository;
+
     public function __construct(AttendanceRepositoryInterface $attendanceRepository) {
         $this->attendanceRepository = $attendanceRepository;
     }
@@ -21,9 +22,10 @@ class AttendanceService {
     public function getFilteredAttendances(array $filters): LengthAwarePaginator
     {
         try {
-            return Attendance::filter($filters)->paginate(10);
+            //return Attendance::with('user.position.core.department')->filter($filters)->paginate(10);
+            return Attendance::with('user.position.core.department')->paginate(10);
         } catch (\Exception $e) {
-            throw new \Exception('Error al obtener las asistencias.', 500);
+            throw new \Exception('Error al obtener las asistencias:', 500);
         }
     }
 

@@ -60,12 +60,15 @@ class JustificationService
             }
 
             $query->orderBy('created_at', 'desc');
+
+            $declines = $query->where('status', '2')->count();
+            $process = $query->where('status', '3')->count();
+            $accept = $query->where('status', '1')->count();
+            $absence = $query->where('type', '0')->count();
+            $delay = $query->where('type', '1')->count();
+            $total = $query->count();
+
             $justifications = $query->paginate(6);
-            $declines = Justification::where('status', '2')->count();
-            $process = Justification::where('status', '3')->count();
-            $accept = Justification::where('status', '1')->count();
-            $absence = Justification::where('type', '0')->count();
-            $delay = Justification::where('type', '1')->count();
 
             $justifications = $justifications->map(function ($justification) {
                 $justification->user->image_url = $justification->user->getImageUrlAttribute();
@@ -73,12 +76,15 @@ class JustificationService
             });
 
             return [
-                'Justifications' => $justifications,
-                'rechazados' => $declines,
-                'proceso' => $process,
-                'aceptados' => $accept,
-                'faltas' => $absence,
-                'delay' => $delay
+                'Justifications' => [
+                    'data' => $justifications,
+                    'rechazados' => $declines,
+                    'proceso' => $process,
+                    'aceptados' => $accept,
+                    'faltas' => $absence,
+                    'delay' => $delay,
+                    'total' => $total
+                ]
             ];
         } catch (ModelNotFoundException $e) {
             throw new ModelNotFoundException('Justificación no encontrada');

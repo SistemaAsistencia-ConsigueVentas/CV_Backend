@@ -75,7 +75,5 @@ class User extends Authenticatable
     {
         return $this->hasMany(Position::class, 'id', 'position_id');
     }
-
-    
 }
 
