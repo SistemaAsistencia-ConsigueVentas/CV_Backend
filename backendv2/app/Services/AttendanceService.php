@@ -19,13 +19,29 @@ class AttendanceService {
         $this->attendanceRepository = $attendanceRepository;
     }
 
-    public function getFilteredAttendances(array $filters): LengthAwarePaginator
-    {
+    public function getFilteredAttendances(array $filters): LengthAwarePaginator {
         try {
-            //return Attendance::with('user.position.core.department')->filter($filters)->paginate(10);
-            return Attendance::with('user.position.core.department')->paginate(10);
+            $query = Attendance::with(['user.position.core.department', 'user.position']);
+    
+            if (isset($filters['date'])) {
+                $query->whereDate('date', $filters['date']);
+            }
+    
+            if (isset($filters['shift'])) {
+                $query->whereHas('user', function ($userQuery) use ($filters) {
+                    $userQuery->where('shift', $filters['shift']);
+                });
+            }
+    
+            if (isset($filters['core'])) {
+                $query->whereHas('user.position.core', function ($coreQuery) use ($filters) {
+                    $coreQuery->where('name', $filters['core']);
+                });
+            }
+    
+            return $query->paginate(10);
         } catch (\Exception $e) {
-            throw new \Exception('Error al obtener las asistencias:', 500);
+            throw new \Exception('Error al obtener las asistencias', 500);
         }
     }
 
