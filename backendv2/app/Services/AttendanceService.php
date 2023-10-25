@@ -46,15 +46,15 @@ class AttendanceService {
         }
     }
 
-    private function isLateForCheckIn($checkInTime) {
-        $currentTime = now();
-        if ($currentTime->format('H:i') > '13:00') {
-            $checkInLimit = new DateTime('14:11', new DateTimeZone('America/Lima'));
-        } else {
-            $checkInLimit = new DateTime('08:11', new DateTimeZone('America/Lima'));
-        }
-        $checkInTime = new DateTime($checkInTime, new DateTimeZone('America/Lima'));
-        return $checkInTime > $checkInLimit;
+    private function isLateForCheckIn($checkInTime) { //(start_time)
+        // $currentTime = now();
+        // if ($currentTime->format('H:i') > '13:00') {
+        //     $checkInLimit = new DateTime('14:11', new DateTimeZone('America/Lima'));
+        // } else {
+        //     $checkInLimit = new DateTime('08:11', new DateTimeZone('America/Lima'));
+        // }
+        // $checkInTime = new DateTime($checkInTime, new DateTimeZone('America/Lima'));
+        //return $checkInTime > $checkInLimit;
     }
 
     private function uploadImage($image) {
@@ -95,9 +95,11 @@ class AttendanceService {
             $authUser = auth()->id();
             $currentTime = now();
             $today = date('Y-m-d');
+
             $attendance = Attendance::where('user_id', $authUser)
                 ->whereDate('date', $today)
                 ->firstOrNew();
+
             if ($attendance->attendance == 0 && $attendance->delay == 0) { //Validacion de base de datos
                 $this->updateCheckIn($attendance, $currentTime, $data['admission_image'], $authUser);
             } else {
@@ -112,11 +114,16 @@ class AttendanceService {
     protected function updateCheckIn($attendance, $currentTime, $imagePath, $authUser)
     {
         try {
+
+            // Schedule del Usuario logueado (15) -- Schedule::where(userid, authUser)
+            //                                                ->where(day, day_of_week)->get()
+
             $attendance->admission_time = $currentTime->format('H:i');
             $attendance->admission_image = $this->uploadImage($imagePath);
             $attendance->user_id = $authUser;
             $attendance->date = $currentTime->format('Y-m-d');
-            if ($this->isLateForCheckIn($attendance->admission_time)) {
+
+            if ($this->isLateForCheckIn($attendance->admission_time)) { //$this->isLateForCheckIn($attendance->admission_time, start_time)
                 $type = $this->hasJustification();
                 if ($type == 2) {
                     $attendance->delay = 1;
