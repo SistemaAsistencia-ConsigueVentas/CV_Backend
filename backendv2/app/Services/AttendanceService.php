@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Models\Attendance;
 use App\Repositories\AttendanceRepositories\AttendanceRepositoryInterface;
+use App\Repositories\ScheduleRepositories\ScheduleRepositoryInterface;
 use Carbon\Carbon;
 use DateTime;
 use DateTimeZone;
@@ -14,9 +15,11 @@ use App\Models\Justification;
 
 class AttendanceService {
     protected $attendanceRepository;
+    protected $scheduleRepository;
 
-    public function __construct(AttendanceRepositoryInterface $attendanceRepository) {
+    public function __construct(AttendanceRepositoryInterface $attendanceRepository, ScheduleRepositoryInterface $scheduleRepository) {
         $this->attendanceRepository = $attendanceRepository;
+        $this->scheduleRepository = $scheduleRepository;
     }
 
     public function getFilteredAttendances(array $filters): LengthAwarePaginator {
@@ -46,15 +49,14 @@ class AttendanceService {
         }
     }
 
-    private function isLateForCheckIn($checkInTime) { //(start_time)
-        // $currentTime = now();
-        // if ($currentTime->format('H:i') > '13:00') {
-        //     $checkInLimit = new DateTime('14:11', new DateTimeZone('America/Lima'));
-        // } else {
-        //     $checkInLimit = new DateTime('08:11', new DateTimeZone('America/Lima'));
-        // }
-        // $checkInTime = new DateTime($checkInTime, new DateTimeZone('America/Lima'));
-        //return $checkInTime > $checkInLimit;
+    private function isLateForCheckIn($checkInTime) {
+        $currentTime = now(); // Obtener la hora actual
+    
+        // Crear objetos DateTime para comparar las horas
+        $currentTime = new DateTime($currentTime->format('H:i'));
+        $checkInTime = new DateTime($checkInTime);
+    
+        return $currentTime > $checkInTime; // Devolver true si el usuario llegó tarde
     }
 
     private function uploadImage($image) {
@@ -114,17 +116,21 @@ class AttendanceService {
     protected function updateCheckIn($attendance, $currentTime, $imagePath, $authUser)
     {
         try {
-
-            // Schedule del Usuario logueado (15) -- Schedule::where(userid, authUser)
-            //                                                ->where(day, day_of_week)->get()
-
+            // Crear el horario personalizado para el usuario logueado
+    
+            $this->scheduleRepository->createCustomScheduleForLoggedInUser($authUser);
+    
+            // Actualizar los datos de asistencia
             $attendance->admission_time = $currentTime->format('H:i');
             $attendance->admission_image = $this->uploadImage($imagePath);
             $attendance->user_id = $authUser;
             $attendance->date = $currentTime->format('Y-m-d');
-
-            if ($this->isLateForCheckIn($attendance->admission_time)) { //$this->isLateForCheckIn($attendance->admission_time, start_time)
+    
+            // Verificar si el usuario llegó tarde según el horario personalizado
+            if ($this->isLateForCheckIn($attendance->admission_time)) {
+                // El usuario llegó tarde
                 $type = $this->hasJustification();
+    
                 if ($type == 2) {
                     $attendance->delay = 1;
                 } else {
@@ -132,8 +138,10 @@ class AttendanceService {
                     $attendance->delay = 1;
                 }
             } else {
+                // El usuario llegó a tiempo
                 $attendance->attendance = 1;
             }
+    
             $attendance->save();
         } catch (\Exception $e) {
             throw new \Exception('Error al actualizar el check-in.', 500);
