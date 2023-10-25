@@ -43,6 +43,10 @@ class ScheduleService
             // Lanzar una excepción si la duración es menor a 5 horas
             throw new \Exception('La duración mínima del horario debe ser de 5 horas.');
         }
+        // Reemplazar el horario actual del usuario si existe uno
+        if ($authUser->schedule) {
+            $authUser->schedule->delete();
+        }
 
         return $this->scheduleRepository->create($data);
     }
