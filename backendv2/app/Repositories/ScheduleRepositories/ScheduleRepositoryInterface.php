@@ -12,4 +12,5 @@ interface ScheduleRepositoryInterface {
     public function create(array $data): Schedule;
     public function update(int $id, array $data): bool;
     public function delete(int $id): bool;
+    public function createCustomScheduleForLoggedInUser(array $data) : Schedule;
 }
