@@ -35,10 +35,4 @@ class EloquentScheduleRepository implements ScheduleRepositoryInterface {
         }
         return false;
     }
-
-    public function createCustomScheduleForLoggedInUser(array $data): Schedule {
-        $schedule = new Schedule($data);
-        $schedule->save();
-        return $schedule;
-    }
 }
