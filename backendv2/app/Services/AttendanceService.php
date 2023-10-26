@@ -11,6 +11,7 @@ use DateTime;
 use DateTimeZone;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Models\Justification;
+use App\Models\User;
 
 class AttendanceService {
     protected $attendanceRepository;
@@ -46,12 +47,12 @@ class AttendanceService {
         }
     }
 
-    private function isLateForCheckIn($checkInTime) {
-        $currentTime = now();
-        if ($currentTime->format('H:i') > '13:00') {
-            $checkInLimit = new DateTime('14:11', new DateTimeZone('America/Lima'));
-        } else {
+    private function isLateForCheckIn($checkInTime, $usuario) {
+        $turno = User::where('id', $usuario)->get('shift');
+        if ($turno[0]->shift == 'Mañana') {
             $checkInLimit = new DateTime('08:11', new DateTimeZone('America/Lima'));
+        } else {
+            $checkInLimit = new DateTime('14:11', new DateTimeZone('America/Lima'));
         }
         $checkInTime = new DateTime($checkInTime, new DateTimeZone('America/Lima'));
         return $checkInTime > $checkInLimit;
@@ -98,6 +99,7 @@ class AttendanceService {
             $attendance = Attendance::where('user_id', $authUser)
                 ->whereDate('date', $today)
                 ->firstOrNew();
+
             if ($attendance->attendance == 0 && $attendance->delay == 0) { //Validacion de base de datos
                 $this->updateCheckIn($attendance, $currentTime, $data['admission_image'], $authUser);
             } else {
@@ -116,7 +118,8 @@ class AttendanceService {
             $attendance->admission_image = $this->uploadImage($imagePath);
             $attendance->user_id = $authUser;
             $attendance->date = $currentTime->format('Y-m-d');
-            if ($this->isLateForCheckIn($attendance->admission_time)) {
+
+            if ($this->isLateForCheckIn($attendance->admission_time, $attendance->user_id)) {
                 $type = $this->hasJustification();
                 if ($type == 2) {
                     $attendance->delay = 1;
