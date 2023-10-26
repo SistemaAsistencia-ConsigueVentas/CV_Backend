@@ -2,11 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Attendance;
-use App\Models\Schedule;
 use App\Services\ScheduleService;
-use DateTime;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 class ScheduleController extends Controller
@@ -37,21 +33,8 @@ class ScheduleController extends Controller
             return response()->json(['message' => 'Error al crear el horario.'], 500);
         }
     }
-    
-    public function checkAttendance(DateTime $currentTime)
-    {
-        try {
-            $authUser = auth()->user();
 
-            // Llamamos al servicio para comprobar la asistencia
-            $result = $this->scheduleService->checkAttendance($authUser, $currentTime);
-            return response()->json(['message' => $result]);
+    //UPDATE
 
-        } catch (ModelNotFoundException $e) {
-            return response()->json(['message' => 'Horario no encontrado.'], 404);
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'Error al verificar la asistencia.'], 500);
-        }
-    }
-    
+    //DELETE
 }
