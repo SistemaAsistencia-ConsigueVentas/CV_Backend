@@ -34,7 +34,23 @@ class ScheduleController extends Controller
         }
     }
 
-    //UPDATE
+    public function updateSchedule(Request $request, int $id)
+    {
+        try {
+            $schedule = $this->scheduleService->updateSchedule($id, $request->all());
+            return response()->json(['message' => 'Horario actualizado exitosamente.'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al actualizar el horario.'], 500);
+        }
+    }
 
-    //DELETE
+    public function deleteSchedule(int $id)
+    {
+        try {
+            $schedule = $this->scheduleService->deleteSchedule($id);
+            return response()->json(['message' => 'Horario eliminado exitosamente.'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al eliminar el horario.'], 500);
+        }
+    }
 }
