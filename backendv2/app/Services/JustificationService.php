@@ -37,25 +37,20 @@ class JustificationService
                 });
             }
     
-            $total = $query->count();
+            //$total = $query->count();
             $justifications = $query->paginate(6);
+
+            return $query->paginate(6);
     
             // $justifications = $justifications->map(function ($justification) {
             //     $justification->user->image_url = $justification->user->getImageUrlAttribute();
             //     return $justification;
             // });
     
-            return [
-                'Justifications' => [
-                    'data' => $justifications,
-                    'total' => $total
-                ]
-            ];
         } catch (ModelNotFoundException $e) {
             throw new ModelNotFoundException('Justificación no encontrada');
         }
     }
-    
 
     private function uploadImage($image)
     {
