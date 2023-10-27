@@ -23,21 +23,21 @@ class ScheduleService
     }
 
     public function createSchedule(array $data)
-    {
+    {   
         $authUser = auth()->id();
-        $data['user_id'] = $authUser;
 
-        // Validar la duración mínima del horario
-        $startTime = new DateTime($data['start_time']);
-        $endTime = new DateTime($data['end_time']);
-        $duration = $endTime->diff($startTime)->h;
-
-        if ($duration < 5) {
-            // Lanzar una excepción si la duración es menor a 5 horas
-            throw new \Exception('La duración mínima del horario debe ser de 5 horas.');
-        } else {
-            return $this->scheduleRepository->create($data);
+        foreach ($data as $item) {
+            $item['authUser'] = $authUser;
+            $data_modificada = [
+                'day_of_week' => $item['day'],
+                'start_time' => $item['Inicio'],
+                'end_time' => $item['Fin'],
+                'user_id' => $item['authUser'],
+            ];
+            $this->scheduleRepository->create($data_modificada);
         }
+        
+        return $data;
     }
 
     public function updateSchedule(int $id, array $data)
