@@ -24,15 +24,12 @@ class ScheduleService
 
     public function createSchedule(array $data)
     {   
-        $authUser = auth()->id();
-
         foreach ($data as $item) {
-            $item['authUser'] = $authUser;
             $data_modificada = [
                 'day_of_week' => $item['day'],
-                'start_time' => $item['Inicio'],
-                'end_time' => $item['Fin'],
-                'user_id' => $item['authUser'],
+                'start_time' => $item['inicio'],
+                'end_time' => $item['fin'],
+                'user_id' => $item['usuario'],
             ];
             $this->scheduleRepository->create($data_modificada);
         }
