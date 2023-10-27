@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Schedule;
 use App\Services\ScheduleService;
 use Illuminate\Http\Request;
 
