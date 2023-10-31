@@ -39,6 +39,12 @@ class AttendanceService {
                     $coreQuery->where('name', $filters['core']);
                 });
             }
+
+            if (isset($filters['department'])) {
+                $query->whereHas('user.position.core.department', function ($departmentQuery) use ($filters) {
+                    $departmentQuery->where('name', $filters['department']);
+                });
+            }
     
             return $query->paginate(10);
             
