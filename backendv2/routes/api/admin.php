@@ -57,6 +57,7 @@ Route::post('evaluation/notes/{id}', [App\Http\Controllers\EvaluationController:
 
 // ---------------- SCHEDULE URL's --------------- //
 Route::get('schedule/list', [App\Http\Controllers\ScheduleController::class, 'getSchedules']);
+Route::get('schedule/{id}', [App\Http\Controllers\ScheduleController::class, 'getSchedulesByID']);
 Route::post('schedule/check', [App\Http\Controllers\ScheduleController::class, 'checkAttendance']);
 Route::post('schedule/create', [App\Http\Controllers\ScheduleController::class, 'createSchedule']);
 
