@@ -19,11 +19,20 @@ class ScheduleController extends Controller
         }
     }
 
+    public function getSchedulesByID($id)
+    {
+        try {
+            return Schedule::where('id', $id)->get();
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al obtener los horarios.'], 500);
+        }
+    }
+
     public function createSchedule(Request $request)
     {
         try {
             $authUser = auth()->id();
-            $request['user_id'] = $authUser; 
+            $request['user_id'] = $authUser;
             $schedule = Schedule::create($request->all());
             return response()->json(['message' => 'Horario creado exitosamente.', 'data' => $schedule], 201);
         } catch (\Exception $e) {
