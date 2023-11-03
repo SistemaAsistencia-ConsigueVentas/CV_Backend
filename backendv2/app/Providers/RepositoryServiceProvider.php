@@ -17,7 +17,8 @@ use App\Repositories\UserRepositories\UserRepositoryInterface;
 use App\Repositories\JustificationRepositories\JustificationRepositoryInterface;
 
 use App\Repositories\ProfileRepositories\PositionRepositoryInterface;
-
+use App\Repositories\ScheduleRepositories\EloquentScheduleRepository;
+use App\Repositories\ScheduleRepositories\ScheduleRepositoryInterface;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider
@@ -34,6 +35,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(JustificationRepositoryInterface::class, EloquentJustificationRepository::class);
         $this->app->bind(AttendanceRepositoryInterface::class, EloquentAttendanceRepository::class);
         $this->app->bind(EvaluationRepositoryInterface::class, EloquentEvaluationRepository::class);
+        $this->app->bind(ScheduleRepositoryInterface::class, EloquentScheduleRepository::class);
     }
 
     /**

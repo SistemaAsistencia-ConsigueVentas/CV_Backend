@@ -6,12 +6,9 @@ namespace App\Services;
 
 use App\Models\Attendance;
 use App\Repositories\AttendanceRepositories\AttendanceRepositoryInterface;
-use Carbon\Carbon;
-use DateTime;
-use DateTimeZone;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Models\Justification;
-use App\Models\User;
+use App\Models\Schedule;
 
 class AttendanceService {
     protected $attendanceRepository;
@@ -53,15 +50,8 @@ class AttendanceService {
         }
     }
 
-    private function isLateForCheckIn($checkInTime, $usuario) {
-        $turno = User::where('id', $usuario)->get('shift');
-        if ($turno[0]->shift == 'Mañana') {
-            $checkInLimit = new DateTime('08:11', new DateTimeZone('America/Lima'));
-        } else {
-            $checkInLimit = new DateTime('14:11', new DateTimeZone('America/Lima'));
-        }
-        $checkInTime = new DateTime($checkInTime, new DateTimeZone('America/Lima'));
-        return $checkInTime > $checkInLimit;
+    private function isLateForCheckIn($checkInTime, $startTime) {
+        return $checkInTime > $startTime; // Devolver true si el usuario llegó tarde
     }
 
     private function uploadImage($image) {
@@ -102,6 +92,7 @@ class AttendanceService {
             $authUser = auth()->id();
             $currentTime = now();
             $today = date('Y-m-d');
+
             $attendance = Attendance::where('user_id', $authUser)
                 ->whereDate('date', $today)
                 ->firstOrNew();
@@ -120,23 +111,42 @@ class AttendanceService {
     protected function updateCheckIn($attendance, $currentTime, $imagePath, $authUser)
     {
         try {
-            $attendance->admission_time = $currentTime->format('H:i');
-            $attendance->admission_image = $this->uploadImage($imagePath);
-            $attendance->user_id = $authUser;
-            $attendance->date = $currentTime->format('Y-m-d');
+            //Formateo para dia de la semana
+            $dayOfWeek = $currentTime->format('w');
 
-            if ($this->isLateForCheckIn($attendance->admission_time, $attendance->user_id)) {
-                $type = $this->hasJustification();
-                if ($type == 2) {
-                    $attendance->delay = 1;
+            // Crear el horario personalizado para el usuario logueado
+            $user_schedule = Schedule::where('user_id', $authUser)
+                                        ->where('day_of_week', $dayOfWeek)
+                                        ->first();
+            
+            if ($user_schedule) {
+                // Actualizar los datos de asistencia
+                $attendance->admission_time = $currentTime->format('H:i');
+                $attendance->admission_image = $this->uploadImage($imagePath);
+                $attendance->user_id = $authUser;
+                $attendance->date = $currentTime->format('Y-m-d');
+        
+                // Verificar si el usuario llegó tarde según el horario personalizado
+                if ($this->isLateForCheckIn($attendance->admission_time, $user_schedule->start_time)) {
+                    // El usuario llegó tarde
+                    $type = $this->hasJustification();
+                    if ($type == 2) {
+                        $attendance->delay = 1;
+                    } else {
+                        $attendance->justification = 1;
+                        $attendance->delay = 1;
+                    }
                 } else {
-                    $attendance->justification = 1;
-                    $attendance->delay = 1;
+                    // El usuario llegó a tiempo
+                    $attendance->attendance = 1;
                 }
+
+                $attendance->save();
+
             } else {
-                $attendance->attendance = 1;
+                throw new \Exception('No existe un horario para el usuario elegido', 500);
             }
-            $attendance->save();
+
         } catch (\Exception $e) {
             throw new \Exception('Error al actualizar el check-in.', 500);
         }
