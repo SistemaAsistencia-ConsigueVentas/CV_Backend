@@ -28,7 +28,7 @@ class ScheduleController extends Controller
     public function getSchedulesByID($id)
     {
         try {
-            return Schedule::where('id', $id)->get();
+            return Schedule::where('user_id', $id)->first();
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error al obtener los horarios.'], 500);
         }
