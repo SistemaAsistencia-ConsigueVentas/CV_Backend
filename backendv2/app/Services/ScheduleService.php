@@ -23,15 +23,14 @@ class ScheduleService
     }
 
     public function createSchedule(array $data)
-    {   
+    {
         $user_id = $data[0]['usuario'];
-
-        $existingSchedule = Schedule::where('user_id', $user_id)->exists();
-
+        $existingSchedule = Schedule::where('user_id', $user_id)->first();
+        
         if ($existingSchedule) {
-            throw new \Exception('Ya existe un horario personalizado para este usuario.', 500);
+            $existingSchedule->delete();
         }
-
+        
         foreach ($data as $item) {
             $data_modificada = [
                 'day_of_week' => $item['day'],
