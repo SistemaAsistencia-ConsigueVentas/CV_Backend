@@ -23,26 +23,25 @@ class LoginController extends Controller
     {
         try {
             $credentials = $request->only(['username', 'password']);
+            $loggedInUser = auth()->user();
+
+            if ($this->loginService->isUserBlocked($loggedInUser)) {
+                return response()->json(['message' => 'La cuenta del usuario está bloqueada'], 403);
+            }
+
             if (!$this->loginService->attempLogin($credentials)) {
                 return response()->json(['message' => __('auth.unauthorized')], 401);
             }
-            
-            $loggedInUser = auth()->user();
 
             if (!$loggedInUser instanceof User) {
                 // Manejar el caso cuando $loggedInUser no es una instancia de User
                 return response()->json(['message' => 'El usuario autenticado no es válido'], 403);
-            }
-            if ($this->loginService->isUserBlocked($loggedInUser)) {
-                return response()->json(['message' => 'La cuenta del usuario está bloqueada'], 403);
             }
             
             $token = $this->loginService->createTokenForUser($loggedInUser);
             $user = User::where('username', $request['username'])->first(['id','name','surname','image', 'shift']);
             $role = $loggedInUser->roles->first();
             
-            
-
             return response()->json([
                 'access_token' => $token,
                 'user' => $user,
