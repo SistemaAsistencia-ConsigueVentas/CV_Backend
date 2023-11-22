@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Notifications;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 
 class NotificationController extends Controller
 {
     public function getNotifications() {
-        $notifications = Notifications::all();
-        return response()->json($notifications);
-    } 
+        $notification = Notification::all();
+        return response()->json($notification);
+    }
 }
