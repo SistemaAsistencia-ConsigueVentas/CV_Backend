@@ -50,8 +50,8 @@ class AttendanceService {
         }
     }
 
-    private function isLateForCheckIn($checkInTime, $startTime) {
-        return $checkInTime > $startTime; // Devolver true si el usuario llegó tarde
+    private function isLateForCheckIn($admissionTime, $startTime) {
+        return $admissionTime > $startTime; // Devolver true si el usuario llegó tarde
     }
 
     private function uploadImage($image) {
@@ -140,13 +140,10 @@ class AttendanceService {
                     // El usuario llegó a tiempo
                     $attendance->attendance = 1;
                 }
-
                 $attendance->save();
-
             } else {
                 throw new \Exception('No existe un horario para el usuario elegido', 500);
             }
-
         } catch (\Exception $e) {
             throw new \Exception('Error al actualizar el check-in.', 500);
         }

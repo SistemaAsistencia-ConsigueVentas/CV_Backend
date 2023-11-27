@@ -19,8 +19,10 @@ class NotificationService
     }
 
     // lógica para verificar si el usuario debe ser bloqueado.
-    public function isUserBlockedForAbsences($userId): bool
-    {
+    public function isUserBlockedForAbsences(): bool
+    {   
+        $userId = auth()->id();
+
         // Obtener la cantidad de ausencias y tardanzas del usuario
         $absencesCount = $this->notificationRepository->countUserAbsences($userId);
         $delaysCount = $this->notificationRepository->countUserDelays($userId);
