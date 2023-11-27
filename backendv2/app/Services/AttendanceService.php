@@ -51,7 +51,7 @@ class AttendanceService {
     }
 
     private function isLateForCheckIn($admissionTime, $startTime) {
-        return $admissionTime > $startTime; // Devolver true si el usuario llegó tarde
+        return $admissionTime < $startTime; // Devolver true si el usuario llegó tarde
     }
 
     private function uploadImage($image) {
