@@ -19,9 +19,11 @@ class AttendanceService {
 
     public function getFilteredAttendances(array $filters): LengthAwarePaginator {
         try {
-            $query = Attendance::with(['user.position.core.department', 'user.position']);
-    
+            $query = Attendance::query()->with('user.position.core.department', 'user.position');
+
             if (isset($filters['date'])) {
+                print('filtro date');
+                print($filters['date']);
                 $query->whereDate('date', $filters['date']);
             }
     
@@ -51,7 +53,7 @@ class AttendanceService {
     }
 
     private function isLateForCheckIn($admissionTime, $startTime) {
-        return $admissionTime < $startTime; // Devolver true si el usuario llegó tarde
+        return $admissionTime > $startTime; // Devolver true si el usuario llegó tarde
     }
 
     private function uploadImage($image) {

@@ -18,8 +18,9 @@ class Position extends Model
         'updated_at',
     ];
 
-    public function user(){
-        return $this->hasOne(User::class);
+    public function user()
+    {
+        return $this->hasMany(User::class, 'position_id', 'id');
     }
 
     public function core()
