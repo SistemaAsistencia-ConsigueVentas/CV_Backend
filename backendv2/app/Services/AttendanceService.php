@@ -22,8 +22,6 @@ class AttendanceService {
             $query = Attendance::query()->with('user.position.core.department', 'user.position');
 
             if (isset($filters['date'])) {
-                print('filtro date');
-                print($filters['date']);
                 $query->whereDate('date', $filters['date']);
             }
     
